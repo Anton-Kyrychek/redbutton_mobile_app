@@ -11,6 +11,8 @@ import {
 } from 'react-native';
 import axios from 'axios';
 
+const url = 'http://localhost:8080/button/';
+
 const App = () => {
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState(null);
@@ -22,14 +24,14 @@ const App = () => {
         'Content-type': 'application/json; charset=UTF-8',
       };
       const body = JSON.stringify({
-        title: 'help',
-        body: 'immediately',
-        userId: 98,
+        // title: 'help',
+        // body: 'immediately',
+        registration_code: 98,
       });
       const {data: resp} = await axios({
         method: 'POST',
         body,
-        url: 'https://jsonplaceholder.typicode.com/posts',
+        url: url,
         headers,
       });
       if (resp) {
