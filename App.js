@@ -26,7 +26,7 @@ const App = () => {
       const body = JSON.stringify({
         // title: 'help',
         // body: 'immediately',
-        registration_code: 98,
+        registration_code: 98, // needs to be string not int
       });
       const {data: resp} = await axios({
         method: 'POST',
