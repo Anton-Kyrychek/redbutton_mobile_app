@@ -1,5 +1,5 @@
 /* eslint-disable no-alert */
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   Pressable,
   SafeAreaView,
@@ -7,36 +7,82 @@ import {
   StyleSheet,
   Text,
   View,
-  ActivityIndicator,
 } from 'react-native';
+import {Input, Button} from 'react-native-elements';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 
-const url = 'http://localhost:8080/button/';
+// TO DO: add NetInfo and handle loss of connection.
+
+const sosUrl = 'http://redbutton.xmig.net/button/';
+const authUrl = 'http://redbutton.xmig.net/auth/';
 
 const App = () => {
-  const [loading, setLoading] = useState(false);
-  const [data, setData] = useState(null);
-  const presshandle = async () => {
-    setData(null);
+  const [loading, setLoading] = useState(true);
+  const [responseData, setResponseData] = useState(null);
+  const [userId, setuserId] = useState(null);
+  const [inputValue, setInputValue] = useState('');
+  const [errorMessage, setErrorMessage] = useState(null);
+
+  useEffect(() => {
+    (async () => {
+      const user = await AsyncStorage.getItem('userId');
+      if (user) {
+        setuserId(user);
+      }
+      setLoading(false);
+    })();
+  }, []);
+
+  const initUser = async val => {
     setLoading(true);
     try {
       const headers = {
         'Content-type': 'application/json; charset=UTF-8',
       };
       const body = JSON.stringify({
-        // title: 'help',
-        // body: 'immediately',
-        registration_code: 98, // needs to be string not int
+        registration_code: inputValue,
       });
       const {data: resp} = await axios({
         method: 'POST',
         body,
-        url: url,
+        url: authUrl,
+        headers,
+      });
+      if (resp) {
+        setuserId(resp);
+        await AsyncStorage.setItem('userId', resp);
+      }
+    } catch (error) {
+      setErrorMessage(
+        'Ошибка регистрации, проверьте правильность введенных данных.',
+      );
+    }
+    setLoading(false);
+  };
+
+  const presshandle = async () => {
+    setResponseData(null);
+    setLoading(true);
+    try {
+      const headers = {
+        'Content-type': 'application/json; charset=UTF-8',
+      };
+      const body = JSON.stringify({
+        registration_code: `${98}`, // needs to be string not int
+      });
+      const {data: resp} = await axios({
+        method: 'POST',
+        body,
+        url: sosUrl,
         headers,
       });
       if (resp) {
         alert('Request sent!');
-        setData({response: resp, time: new Date().toLocaleTimeString()});
+        setResponseData({
+          response: resp,
+          time: new Date().toLocaleTimeString(),
+        });
       }
     } catch (error) {
       alert('error');
@@ -45,25 +91,39 @@ const App = () => {
     setLoading(false);
   };
 
+  if (!userId) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <StatusBar barStyle={'light-content'} />
+        <Input
+          placeholder="Введите идентификационный номер"
+          // leftIcon={{ type: 'font-awesome', name: 'comment' }}
+          value={inputValue}
+          style={styles}
+          onChangeText={value => setInputValue(value)}
+          errorStyle={{color: 'red'}}
+          errorMessage={errorMessage}
+        />
+        <Button title="Войти" onPress={initUser} loading={loading} />
+      </SafeAreaView>
+    );
+  }
+
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle={'light-content'} />
       <View>
-        {loading ? (
-          <ActivityIndicator size="large" color="#6dc963" />
-        ) : (
-          <Pressable
-            style={({pressed}) => ({
-              backgroundColor: !pressed ? '#ff0000' : '#ff8f8f',
-              ...styles.button,
-            })}
-            onPress={presshandle}>
-            <Text style={styles.buttonTitle}>SOS</Text>
-          </Pressable>
-        )}
-        {data && (
+        <Pressable
+          style={({pressed}) => ({
+            backgroundColor: !pressed ? '#ff0000' : '#ff8f8f',
+            ...styles.button,
+          })}
+          onPress={presshandle}>
+          <Text style={styles.buttonTitle}>SOS</Text>
+        </Pressable>
+        {responseData && (
           <Text style={[styles.buttonTitle, styles.successMessage]}>
-            Request sent successfully at {data.time}
+            Request sent successfully at {responseData.time}
           </Text>
         )}
       </View>
