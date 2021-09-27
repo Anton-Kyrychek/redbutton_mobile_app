@@ -46,13 +46,14 @@ const App = () => {
       });
       const {data: resp} = await axios({
         method: 'POST',
-        body,
+        data: body,
         url: authUrl,
         headers,
       });
+
       if (resp) {
-        setuserId(resp);
-        await AsyncStorage.setItem('userId', resp);
+        setuserId(`${inputValue}`);
+        await AsyncStorage.setItem('userId', `${inputValue}`);
       }
     } catch (error) {
       console.log('Responce error', error);
@@ -76,7 +77,7 @@ const App = () => {
       });
       const {data: resp} = await axios({
         method: 'POST',
-        body,
+        data: body,
         url: sosUrl,
         headers,
       });
