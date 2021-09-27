@@ -15,7 +15,7 @@ import axios from 'axios';
 // TO DO: add NetInfo and handle loss of connection.
 
 const sosUrl = 'http://redbutton.xmig.net/button/';
-const authUrl = 'http://redbutton.xmig.net/auth/';
+const authUrl = 'http://redbutton.xmig.net/button/reg_code_check/';
 
 const App = () => {
   const [loading, setLoading] = useState(true);
@@ -36,12 +36,13 @@ const App = () => {
 
   const initUser = async val => {
     setLoading(true);
+    setErrorMessage('');
     try {
       const headers = {
         'Content-type': 'application/json; charset=UTF-8',
       };
       const body = JSON.stringify({
-        registration_code: inputValue,
+        registration_code: `${inputValue}`,
       });
       const {data: resp} = await axios({
         method: 'POST',
@@ -54,6 +55,8 @@ const App = () => {
         await AsyncStorage.setItem('userId', resp);
       }
     } catch (error) {
+      console.log('Responce error', error);
+
       setErrorMessage(
         'Ошибка регистрации, проверьте правильность введенных данных.',
       );
@@ -69,7 +72,7 @@ const App = () => {
         'Content-type': 'application/json; charset=UTF-8',
       };
       const body = JSON.stringify({
-        registration_code: `${98}`, // needs to be string not int
+        registration_code: `${userId}`, // needs to be string not int
       });
       const {data: resp} = await axios({
         method: 'POST',
@@ -85,9 +88,8 @@ const App = () => {
         });
       }
     } catch (error) {
-      alert('error');
+      alert(error);
     }
-
     setLoading(false);
   };
 
@@ -97,14 +99,19 @@ const App = () => {
         <StatusBar barStyle={'light-content'} />
         <Input
           placeholder="Введите идентификационный номер"
-          // leftIcon={{ type: 'font-awesome', name: 'comment' }}
           value={inputValue}
-          style={styles}
+          containerStyle={styles.input}
           onChangeText={value => setInputValue(value)}
-          errorStyle={{color: 'red'}}
+          errorStyle={[styles.error, styles.text]}
           errorMessage={errorMessage}
+          keyboardType="number-pad"
         />
-        <Button title="Войти" onPress={initUser} loading={loading} />
+        <Button
+          title="Войти"
+          onPress={initUser}
+          loading={loading}
+          containerStyle={styles.button}
+        />
       </SafeAreaView>
     );
   }
@@ -116,7 +123,7 @@ const App = () => {
         <Pressable
           style={({pressed}) => ({
             backgroundColor: !pressed ? '#ff0000' : '#ff8f8f',
-            ...styles.button,
+            ...styles.alarmButton,
           })}
           onPress={presshandle}>
           <Text style={styles.buttonTitle}>SOS</Text>
@@ -136,9 +143,11 @@ const styles = StyleSheet.create({
     flex: 1,
     alignContent: 'center',
     justifyContent: 'center',
-    backgroundColor: 'gray',
+    backgroundColor: '#fff',
+    width: '100%',
+    height: '100%',
   },
-  button: {
+  alarmButton: {
     width: 200,
     height: 200,
     borderRadius: 200,
@@ -155,6 +164,20 @@ const styles = StyleSheet.create({
   successMessage: {
     color: '#6dc963',
     textAlign: 'center',
+  },
+  errorText: {
+    color: '#f00',
+  },
+  text: {
+    fontSize: 20,
+  },
+  input: {
+    width: '80%',
+    alignSelf: 'center',
+  },
+  button: {
+    width: '70%',
+    alignSelf: 'center',
   },
 });
 
