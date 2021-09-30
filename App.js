@@ -35,6 +35,10 @@ const App = () => {
     })();
   }, []);
 
+  function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
+
   const initUser = async val => {
     setLoading(true);
     setErrorMessage('');
@@ -65,6 +69,9 @@ const App = () => {
   };
 
   const presshandle = async () => {
+    if (loading) {
+      return;
+    }
     setResponseData(null);
     setLoading(true);
     try {
@@ -89,6 +96,7 @@ const App = () => {
     } catch (error) {
       alert(error);
     }
+    await sleep(5000);
     setLoading(false);
   };
 
@@ -99,7 +107,11 @@ const App = () => {
         <View>
           <Pressable
             style={({pressed}) => ({
-              backgroundColor: !pressed ? '#ff0000' : '#ff8f8f',
+              backgroundColor: loading
+                ? 'gray'
+                : !pressed
+                ? '#ff0000'
+                : '#ff8f8f',
               ...styles.alarmButton,
             })}
             onPress={presshandle}>
@@ -128,7 +140,7 @@ const App = () => {
         keyboardType="number-pad"
       />
       <Button
-        title="Войти"
+        title="Увiйти"
         onPress={initUser}
         loading={loading}
         containerStyle={styles.button}
@@ -173,7 +185,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
   },
   input: {
-    width: '80%',
+    width: '95%',
     alignSelf: 'center',
   },
   button: {
