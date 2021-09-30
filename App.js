@@ -13,7 +13,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 
 // TO DO: add NetInfo and handle loss of connection.
-// TO DO: add Preson first name & last name & age for confirmation after login.
+// TO DO: add Preson first name & last name & age for confirmation after login. 
 
 const sosUrl = 'https://redbutton.xmig.net/button/';
 const authUrl = 'https://redbutton.xmig.net/button/reg_code_check/';
