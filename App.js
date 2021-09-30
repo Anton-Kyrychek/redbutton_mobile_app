@@ -13,9 +13,14 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 
 // TO DO: add NetInfo and handle loss of connection.
+// TO DO: add Preson first name & last name & age for confirmation after login.
 
-const sosUrl = 'http://redbutton.xmig.net/button/';
-const authUrl = 'http://redbutton.xmig.net/button/reg_code_check/';
+const sosUrl = 'https://redbutton.xmig.net/button/';
+<<<<<<< HEAD
+const authUrl = 'https://redbutton.xmig.net/button/reg_code_check/';
+=======
+const authUrl = sosUrl + 'reg_code_check/';
+>>>>>>> 5b48f82265d8053cbceb1b5485286b739fb3ed90
 
 const App = () => {
   const [loading, setLoading] = useState(true);
@@ -56,10 +61,8 @@ const App = () => {
         await AsyncStorage.setItem('userId', `${inputValue}`);
       }
     } catch (error) {
-      console.log('Responce error', error);
-
       setErrorMessage(
-        'Ошибка регистрации, проверьте правильность введенных данных.',
+        "Помилка реєстрації, перевірте правильність введених даних або зв'яжіться з адміністратором.",
       );
     }
     setLoading(false);
@@ -82,7 +85,6 @@ const App = () => {
         headers,
       });
       if (resp) {
-        alert('Request sent!');
         setResponseData({
           response: resp,
           time: new Date().toLocaleTimeString(),
@@ -94,25 +96,25 @@ const App = () => {
     setLoading(false);
   };
 
-  if (!userId) {
+  if (userId) {
     return (
       <SafeAreaView style={styles.container}>
         <StatusBar barStyle={'light-content'} />
-        <Input
-          placeholder="Введите идентификационный номер"
-          value={inputValue}
-          containerStyle={styles.input}
-          onChangeText={value => setInputValue(value)}
-          errorStyle={[styles.error, styles.text]}
-          errorMessage={errorMessage}
-          keyboardType="number-pad"
-        />
-        <Button
-          title="Войти"
-          onPress={initUser}
-          loading={loading}
-          containerStyle={styles.button}
-        />
+        <View>
+          <Pressable
+            style={({pressed}) => ({
+              backgroundColor: !pressed ? '#ff0000' : '#ff8f8f',
+              ...styles.alarmButton,
+            })}
+            onPress={presshandle}>
+            <Text style={styles.buttonTitle}>Надіслати виклик</Text>
+          </Pressable>
+          {responseData && (
+            <Text style={[styles.buttonTitle, styles.successMessage]}>
+              Виклик відправлений успішно о {responseData.time}
+            </Text>
+          )}
+        </View>
       </SafeAreaView>
     );
   }
@@ -120,21 +122,21 @@ const App = () => {
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle={'light-content'} />
-      <View>
-        <Pressable
-          style={({pressed}) => ({
-            backgroundColor: !pressed ? '#ff0000' : '#ff8f8f',
-            ...styles.alarmButton,
-          })}
-          onPress={presshandle}>
-          <Text style={styles.buttonTitle}>SOS</Text>
-        </Pressable>
-        {responseData && (
-          <Text style={[styles.buttonTitle, styles.successMessage]}>
-            Request sent successfully at {responseData.time}
-          </Text>
-        )}
-      </View>
+      <Input
+        placeholder="Введіть реєстраційний номер підопічного"
+        value={inputValue}
+        containerStyle={styles.input}
+        onChangeText={value => setInputValue(value)}
+        errorStyle={[styles.error, styles.text]}
+        errorMessage={errorMessage}
+        keyboardType="number-pad"
+      />
+      <Button
+        title="Войти"
+        onPress={initUser}
+        loading={loading}
+        containerStyle={styles.button}
+      />
     </SafeAreaView>
   );
 };
@@ -157,10 +159,12 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     alignItems: 'center',
     justifyContent: 'center',
+    textAlign: 'center',
   },
   buttonTitle: {
-    fontSize: 40,
+    fontSize: 30,
     fontWeight: 'bold',
+    textAlign: 'center',
   },
   successMessage: {
     color: '#6dc963',
