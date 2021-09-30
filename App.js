@@ -14,8 +14,8 @@ import axios from 'axios';
 
 // TO DO: add NetInfo and handle loss of connection.
 
-const sosUrl = 'http://redbutton.xmig.net/button/';
-const authUrl = 'http://redbutton.xmig.net/button/reg_code_check/';
+const sosUrl = 'https://redbutton.xmig.net/button/';
+const authUrl = sosUrl + 'reg_code_check/';
 
 const App = () => {
   const [loading, setLoading] = useState(true);
