@@ -16,11 +16,7 @@ import axios from 'axios';
 // TO DO: add Preson first name & last name & age for confirmation after login.
 
 const sosUrl = 'https://redbutton.xmig.net/button/';
-<<<<<<< HEAD
 const authUrl = 'https://redbutton.xmig.net/button/reg_code_check/';
-=======
-const authUrl = sosUrl + 'reg_code_check/';
->>>>>>> 5b48f82265d8053cbceb1b5485286b739fb3ed90
 
 const App = () => {
   const [loading, setLoading] = useState(true);
