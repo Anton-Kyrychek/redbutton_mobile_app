@@ -123,20 +123,27 @@ const App = () => {
         <View>
           <Pressable
             style={({pressed}) => ({
-              backgroundColor: !pressed ? '#ff0000' : '#ff8f8f',
+              backgroundColor: loading
+                ? 'gray'
+                : !pressed
+                ? '#ff0000'
+                : '#ff8f8f',
               ...styles.alarmButton,
-              zIndex: 100,
             })}
             onPress={presshandle}>
-            <AnimatedCircularProgress
-              size={200}
-              width={15}
-              fill={100}
-              duration={5000}
-              tintColor="#6dc963"
-              backgroundColor="#3d5875">
-              {() => <Text style={styles.buttonTitle}>Надіслати виклик</Text>}
-            </AnimatedCircularProgress>
+            {loading ? (
+              <AnimatedCircularProgress
+                size={200}
+                width={15}
+                fill={100}
+                duration={5000}
+                tintColor="#6dc963"
+                backgroundColor="#3d5875">
+                {() => <Text style={styles.buttonTitle}>Надіслати виклик</Text>}
+              </AnimatedCircularProgress>
+            ) : (
+              <Text style={styles.buttonTitle}>Надіслати виклик</Text>
+            )}
           </Pressable>
 
           {responseData && (
