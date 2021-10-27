@@ -11,15 +11,14 @@ import {
 import {Input, Button, Overlay, Icon} from 'react-native-elements';
 import {AnimatedCircularProgress} from 'react-native-circular-progress';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import {useNetInfo} from '@react-native-community/netinfo';
 import axios from 'axios';
-
-// TO DO: add NetInfo and handle loss of connection.
-// TO DO: add Preson first name & last name & age for confirmation after login.
 
 const sosUrl = 'https://redbutton.xmig.net/button/';
 const authUrl = 'https://redbutton.xmig.net/button/reg_code_check/';
 
 const App = () => {
+  const {isInternetReachable} = useNetInfo();
   const [loading, setLoading] = useState(true);
   const [showOverlay, setShowOverlay] = useState(false);
   const [responseData, setResponseData] = useState(null);
@@ -111,33 +110,42 @@ const App = () => {
       }
     } catch (error) {
       alert(error);
+    } finally {
+      await sleep(5000);
+      setLoading(false);
     }
-    await sleep(5000);
-    setLoading(false);
   };
+
+  const canSendSignal = isInternetReachable && !loading;
 
   if (userId) {
     return (
       <SafeAreaView style={styles.container}>
         <StatusBar barStyle={'light-content'} />
-        <View>
+        {!isInternetReachable && (
+          <Text numberOfLines={2} style={styles.noConnection}>
+            Відсутнє підключення до Інтернету, виклик допомоги неможливий.
+          </Text>
+        )}
+        <View style={styles.buttonContainerStyle}>
           <Pressable
             style={({pressed}) => ({
-              backgroundColor: loading
-                ? 'gray'
+              backgroundColor: !canSendSignal
+                ? '#8d8d8d'
                 : !pressed
                 ? '#ff0000'
                 : '#ff8f8f',
               ...styles.alarmButton,
             })}
-            onPress={presshandle}>
-            {loading ? (
+            onPress={presshandle}
+            disabled={!isInternetReachable}>
+            {!canSendSignal ? (
               <AnimatedCircularProgress
                 size={200}
                 width={15}
                 fill={100}
-                duration={5000}
-                tintColor="#6dc963"
+                duration={isInternetReachable ? 5000 : 0}
+                tintColor={isInternetReachable ? '#6dc963' : '#3d5875'}
                 backgroundColor="#3d5875">
                 {() => <Text style={styles.buttonTitle}>Надіслати виклик</Text>}
               </AnimatedCircularProgress>
@@ -146,7 +154,7 @@ const App = () => {
             )}
           </Pressable>
 
-          {responseData && (
+          {responseData && !loading && (
             <Text style={[styles.buttonTitle, styles.successMessage]}>
               Виклик відправлений успішно о {responseData.time}
             </Text>
@@ -159,10 +167,16 @@ const App = () => {
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle={'light-content'} />
+      {!isInternetReachable && (
+        <Text numberOfLines={2} style={styles.noConnection}>
+          Відсутнє підключення до Інтернету, ініціалізація неможлива.
+        </Text>
+      )}
       <Input
-        placeholder="Введіть реєстраційний номер підопічного"
+        placeholder="Введіть номер"
+        label="Введіть реєстраційний номер підопічного"
         value={inputValue}
-        containerStyle={styles.input}
+        containerStyle={styles.inputCuntainer}
         onChangeText={value => setInputValue(value)}
         errorStyle={[styles.error, styles.text]}
         errorMessage={errorMessage}
@@ -173,6 +187,9 @@ const App = () => {
         onPress={initUser}
         loading={loading}
         containerStyle={styles.button}
+        disabledTitleStyle={styles.disabledButtonTitle}
+        disabledStyle={styles.disabledButton}
+        disabled={!isInternetReachable}
       />
       <Overlay
         overlayStyle={{
@@ -199,12 +216,18 @@ const App = () => {
             onPress={onRejectUserData}
             buttonStyle={styles.cancelButton}
             containerStyle={styles.overlayButton}
+            disabledTitleStyle={styles.disabledButtonTitle}
+            disabledStyle={styles.disabledButton}
+            disabled={!isInternetReachable}
           />
           <Button
             title="Інформація правильна"
             buttonStyle={styles.confirmButton}
             onPress={onConfirmUserData}
             containerStyle={styles.overlayButton}
+            disabledTitleStyle={styles.disabledButtonTitle}
+            disabledStyle={styles.disabledButton}
+            disabled={!isInternetReachable}
           />
         </View>
       </Overlay>
@@ -237,8 +260,10 @@ const styles = StyleSheet.create({
     fontSize: 30,
     fontWeight: 'bold',
     textAlign: 'center',
+    color: '#fff',
   },
   successMessage: {
+    paddingTop: 10,
     color: '#6dc963',
     textAlign: 'center',
   },
@@ -248,13 +273,37 @@ const styles = StyleSheet.create({
   text: {
     fontSize: 20,
   },
-  input: {
+  inputCuntainer: {
     width: '95%',
     alignSelf: 'center',
   },
   button: {
     width: '70%',
     alignSelf: 'center',
+  },
+  noConnection: {
+    position: 'absolute',
+    top: 0,
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: 22,
+    width: '100%',
+    height: '15%',
+    textAlign: 'center',
+    textAlignVertical: 'center',
+    backgroundColor: '#ff0000',
+  },
+  disabledButton: {
+    backgroundColor: '#8d8d8d',
+  },
+  disabledButtonTitle: {
+    color: '#fff',
+  },
+  buttonContainerStyle: {
+    flexDirection: 'column',
+    justifyContent: 'flex-start',
+    height: '90%',
+    top: '25%',
   },
 
   // overlay
@@ -289,8 +338,9 @@ const styles = StyleSheet.create({
     top: 10,
   },
   overlayTitle: {
-    fontSize: 16,
-    paddingBottom: 10,
+    fontSize: 20,
+    paddingVertical: 15,
+    paddingTop: 20,
   },
 });
 
