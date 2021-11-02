@@ -14,8 +14,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useNetInfo} from '@react-native-community/netinfo';
 import axios from 'axios';
 
-const sosUrl = 'https://redbutton.xmig.net/button/';
-const authUrl = 'https://redbutton.xmig.net/button/reg_code_check/';
+const sosUrl = 'https://redbutton.site/button/';
+const authUrl = 'https://redbutton.site/button/reg_code_check/';
 
 const App = () => {
   const {isInternetReachable} = useNetInfo();
